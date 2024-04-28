@@ -54,29 +54,31 @@ def display_introduction():
     
 def display_data():
     relation_options = ["Datasets", "Harga Satuan x Penerbit"]
-    selected_relation = st.selectbox("Pilih Relasi", relation_options)
+    selected_relation = st.selectbox("Pilih Halaman", relation_options)
 
     return selected_relation
 
+def scatter_plot():
+    fig = px.scatter(df, x='HARGA SATUAN', y='PENERBIT')
+    st.plotly_chart(fig)
+
+    st.markdown("""
+    Dengan visualisasi ini, kita dapat melihat pola hubungan antara 
+    harga satuan buku dengan penerbitnya. Jika ada korelasi yang kuat 
+    antara harga satuan dengan penerbit, kita akan melihat pola tertentu 
+    di mana buku dari penerbit tertentu cenderung memiliki harga satuan 
+    tertentu yang lebih tinggi atau lebih rendah daripada penerbit lainnya. 
+    Ini bisa memberikan wawasan yang berharga tentang strategi penetapan 
+    harga dan preferensi pembelian pelanggan di toko buku Pak Nur.
+    """)
+    
 def relation_section(relation):
     if relation == "Datasets":
         st.subheader("Dataset")
         st.dataframe(df)
     elif relation == "Harga Satuan x Penerbit":
-        fig = px.scatter(df, x='HARGA SATUAN', y='PENERBIT')
-        st.plotly_chart(fig)
-
-    st.markdown("""
-        ---------------------------------------
-        Dalam scatter plot di atas, terlihat bahwa usia 23 tahun adalah yang paling muda, 
-        sementara usia 53 tahun adalah yang tertua. Di rentang usia 23 hingga 25 tahun, 
-        terdapat 5 responden dengan gaji di bawah 50 ribu USD per tahun. Salah satu dari responden 
-        berusia 25 tahun memiliki gaji paling rendah di rentang tersebut, yaitu sebesar 30 ribu USD. 
-        Di rentang usia di atas 50 tahun hingga 53 tahun, terdapat 9 responden. 
-        Gaji terendah adalah 140 ribu USD dan yang tertinggi adalah 250 ribu USD, 
-        dengan salah satu responden berusia 52 tahun.        
-        """)
-
+        scatter_plot()
+        
 def main():
     st.sidebar.title("Selamat Datang!")
 
