@@ -10,7 +10,6 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
 import urllib.request
 import seaborn as sns
-import gender_guesser.detector as gender
 import numpy as np
 import pandas as pd
 import plotly.express as px
