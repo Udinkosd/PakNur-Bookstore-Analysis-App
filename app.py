@@ -10,13 +10,11 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
 import urllib.request
 import seaborn as sns
-import gender_guesser.detector as gender
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
-import xmltodict
 from pandas import json_normalize
 from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_lottie import st_lottie
