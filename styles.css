@@ -6,7 +6,14 @@
     margin: auto;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: auto;
+<<<<<<< HEAD
     background: #0e1117;  /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #0e1117, #0e1117);  /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to right, #0e1117, #0e1117); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
+=======
+    background: #4B79A1;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #283E51, #4B79A1);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #283E51, #4B79A1); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+>>>>>>> 177cf22e2a531d2aea67644ce37d51abf1c0cdd3
