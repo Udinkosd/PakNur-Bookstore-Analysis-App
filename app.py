@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,7 +8,10 @@ import altair as alt
 import matplotlib.ticker as mtick
 import streamlit_lottie as st_lottie
 from sklearn.cluster import KMeans
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import AgglomerativeClustering
 import urllib.request
 import seaborn as sns
 import numpy as np
@@ -28,23 +32,24 @@ with open('./styles.css') as f:
 
 st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
-def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
+def load_lottiefile(file_name: str):
+    with open(file_name, 'r') as f:
+        return json.load(f)
 
 st.markdown(f"""
     <style>
-        .lottie-player {{
+       .lottie-player {{
             width: 200px;
             height: 200px;
-            background: transparent; /* Set the background to transparent */
+            background: transparent;
+        }}
+       .lottie-player svg {{
+            background: transparent;
         }}
     </style>
 """, unsafe_allow_html=True)
 
-lottie_book = load_lottieurl("https://lottie.host/eca10532-a730-48fc-92a9-dd60ed932248/EUebA31hXI.json")
+lottie_book = load_lottiefile('C6LgbVNJtO.json')
 st_lottie(lottie_book, speed=1, height=200, key="initial")
 
 row0_spacer1, row0_1, row0_spacer2, row0_2, row0_spacer3 = st.columns(
@@ -173,6 +178,68 @@ def scatter_plot():
     harga dan preferensi pembelian pelanggan di toko buku Pak Nur.
     """)
 
+def show_cluster():
+    pipeline_hc = Pipeline([
+        ('scaler', StandardScaler()),
+        ('hc', AgglomerativeClustering(n_clusters=4))
+    ])
+
+    clusters = pipeline_hc.fit_predict(df[['BARANG', 'HARGA TOTAL']])
+    df['Cluster'] = clusters
+
+    st.title('Tabel Cluster')
+
+    selected_variable = st.selectbox('Pilih Variabel:', ['Kategori Harga', 'Harga Satuan', 'Harga Total'])
+
+    ylabel_mapping = {
+        'Kategori Harga': 'HARGA SATUAN',
+        'Harga Satuan': 'BARANG',
+        'Harga Total': 'HARGA TOTAL'
+    }
+    y_label = ylabel_mapping[selected_variable]
+
+    xlabel_mapping = {
+        'Kategori Harga': 'HARGA TOTAL',
+        'Harga Satuan': 'HARGA SATUAN',
+        'Harga Total': 'BARANG'
+    }
+    x_label = xlabel_mapping[selected_variable]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for cluster in sorted(df['Cluster'].unique()):
+        cluster_data = df[df['Cluster'] == cluster]
+        ax.scatter(cluster_data[x_label], cluster_data[y_label], label=f'Cluster {cluster}')
+
+    ax.set_title('Hierarchical Clustering')
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.legend()
+    st.pyplot(fig)
+
+    selected_cluster = st.slider('Pilih Cluster:', 0, df['Cluster'].max(), 0)
+    filtered_df = df[df['Cluster'] == selected_cluster]
+
+    st.write(filtered_df)
+
+    st.markdown("""
+    Dalam diagram k-means clustering tersebut, terdapat empat cluster.
+    """)
+
+    st.markdown("---")
+
+    st.subheader('Statistik Cluster')
+
+    cluster_stats = filtered_df.groupby('Cluster').agg(
+        Barang_Tertinggi=('BARANG', 'max'),
+        Barang_Terendah=('BARANG', 'min'),
+        Barang_Rata_rata=('BARANG', 'mean'),
+        Harga_Total_Tertinggi=('HARGA TOTAL', 'max'),
+        Harga_Total_Terendah=('HARGA TOTAL', 'min'),
+        Harga_Total_Rata_rata=('HARGA TOTAL', 'mean')
+    )
+
+    st.write(cluster_stats)
+    
 def relation_section(relation, selected_columns):
     if relation == "Datasets":
         st.subheader("Dataset")
@@ -183,6 +250,7 @@ def relation_section(relation, selected_columns):
             st.dataframe(df)
     elif relation == "Cluster":
         scatter_plot()
+        show_cluster()
 
 def book_summary():
     st.write("Informasi lengkap tentang dataset:")
@@ -239,6 +307,39 @@ def main():
 
     sections = ["Statistik", "Data"]
     selected_section = st.sidebar.radio("Pilih Halaman", sections)
+    
+    colors = ["Default", "Water", "Sky", "Gradient"]
+    color = st.sidebar.radio("Background", colors)
+
+    color_config = {
+        "Default": {"css_class": "stApp", "background_style": ""}, 
+        "Water": {"css_class": "stApp", "background_url": "https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"},
+        "Sky": {"css_class": "stApp", "background_url": "https://images.unsplash.com/photo-1537420327992-d6e192287183?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"},
+        "Gradient": {"css_class": "stApp", "background_url": "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
+    }
+
+    css_class = color_config[color]["css_class"]
+    background_style = color_config[color].get("background_style", "")
+    background_url = color_config[color].get("background_url", "") 
+
+    if background_url:
+        st.markdown(f"""
+            <style>
+             .{css_class} {{
+                    background-image: url({background_url});
+                    background-size: 50%;
+                    background-size: cover;
+                }}
+            </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+            <style>
+             .{css_class} {{
+                    {background_style}
+                }}
+            </style>
+        """, unsafe_allow_html=True)
 
     st.title("PakNur Bookstore Analysis App")
 
