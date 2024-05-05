@@ -177,6 +177,80 @@ def scatter_plot():
     harga dan preferensi pembelian pelanggan di toko buku Pak Nur.
     """)
 
+def bar_chart():
+    fig = px.histogram(df, x='HARGA SATUAN', nbins=5, color_discrete_sequence=['skyblue'])
+    fig.update_layout(title='Distribusi Harga Satuan Buku',
+                    xaxis_title='Harga Satuan',
+                    yaxis_title='Frekuensi',
+                    bargap=0.05,
+                    bargroupgap=0.1,
+                    showlegend=False)
+
+    st.plotly_chart(fig)
+
+    st.markdown("""
+    Dari visualisasi bar chart tersebut, terlihat bahwa buku 
+    dengan harga di sekitar 40rb memiliki volume penjualan yang cukup tinggi, 
+    dan diikuti oleh buku-buku dengan harga berkisar antara 80rb hingga 120rb. 
+    Meskipun tidak terlalu signifikan, hal ini menunjukkan bahwa buku dengan harga yang 
+    lebih terjangkau, khususnya sekitar 40rb, cenderung lebih diminati daripada buku dengan 
+    harga di atas 40rb.
+    """)
+
+def scatter_plot_2():
+    fig = px.scatter(df, x='HARGA SATUAN', y='HARGA TOTAL', opacity=0.7)
+
+    fig.update_layout(title='Hubungan Antara Harga Satuan dan Harga Total Buku',
+                    xaxis_title='Harga Satuan',
+                    yaxis_title='Harga Total')
+
+    st.plotly_chart(fig)
+    
+    st.markdown("""
+    Berdasarkan visualisasi relasi tersebut, terlihat hubungan antara harga satuan 
+    dan harga total buku dimana harga total buku selalu lebih tinggi daripada harga satuan buku. 
+    Semakin tinggi harga satuan buku, semakin tinggi pula harga total buku. Hal ini 
+    menunjukkan bahwa harga satuan buku memiliki hubungan positif dengan harga total buku.
+    Hubungan antara harga satuan buku dan harga total buku bersifat linear. Hal ini berarti 
+    bahwa setiap kenaikan satu unit harga satuan buku akan diikuti dengan kenaikan harga total 
+    buku dengan jumlah yang konstan. Scatter plot tersebut menunjukkan bahwa terdapat 
+    hubungan positif dan linear antara harga satuan buku dan harga total buku. Semakin 
+    tinggi harga satuan buku, semakin tinggi pula harga total buku.
+    """)
+
+def bar_chart_2():
+    df_sorted = df.sort_values(by='HARGA SATUAN', ascending=False)
+
+    fig = px.bar(df_sorted, x='PENERBIT', y='HARGA SATUAN', color='PENERBIT')
+
+    fig.update_layout(title='Perbandingan Harga Satuan Berdasarkan Penerbit (Harga Tertinggi)',
+                    xaxis_title='Penerbit',
+                    yaxis_title='Harga Satuan')
+
+    st.plotly_chart(fig)
+
+    st.markdown("""
+    Dari visualisasi tersebut, terlihat bahwa penerbit Lentera Abadi 
+    memiliki harga satuan buku tertinggi, mencapai 150rb, diikuti oleh Mediatama dengan harga 102rb
+    meski hanya beberapa buku saja, lalu yang ketiga adalah Imperial Bhakti Utama, 
+    dengan harga di atas 80rb. Ketiga penerbit 
+    tersebut menunjukkan kecenderungan untuk menetapkan harga buku di atas rata-rata, 
+    sementara penerbit lainnya cenderung memiliki harga berkisar antara 40rb hingga 50rb.
+    """)
+
+def pie_chart():
+    fig = px.pie(df, values='BARANG', names='PENERBIT', title='Komposisi Total Barang Berdasarkan Penerbit (Top 2)',
+             hole=0.3)
+
+    st.plotly_chart(fig)
+
+    st.markdown("""
+    Pada visualisasi pie chart tersebut, terlihat bahwa penerbit 
+    Karya Mandiri Nusantara merupakan penerbit terbanyak yaitu sekitar 26% atau sekitar
+    35 Buku, diikuti oleh Mediatama dengan 24% kontribusi atau sekitar 33 buku, lalu terdapat
+    penerbit Empat Pilar dengan 12 buku atau sekitar 9%.
+    """)
+
 def show_cluster():
     pipeline_hc = Pipeline([
         ('scaler', StandardScaler()),
@@ -248,7 +322,6 @@ def relation_section(relation, selected_columns):
         else:
             st.dataframe(df)
     elif relation == "Cluster":
-        scatter_plot()
         show_cluster()
 
 def book_summary():
@@ -276,19 +349,26 @@ def book_summary():
     st.write()
     st.write("Tahun perolehan buku tertua:", oldest_acquisition_date)
 
-# def line_chart():
-#     # Count the number of books for each publisher
-#     publisher_counts = df['PENERBIT'].value_counts()
+def display_statistik():
+    relation_options = ["Korelasi", "Distribusi", "Relasi", "Perbandingan", "Komposisi"]
+    selected_relation = st.selectbox("Pilih Halaman", relation_options)
+    
+    selected_columns = st.multiselect("Filter", df.columns)
 
-#     # Create a bar chart
-#     fig, ax = plt.subplots()
-#     ax.bar(publisher_counts.index, publisher_counts.values)
-#     ax.set_xlabel('Publisher')
-#     ax.set_ylabel('Number of Books')
-#     ax.set_title('Number of Books by Publisher')
+    if selected_relation == "Korelasi":
+        scatter_plot()
+    elif selected_relation == "Distribusi":
+        bar_chart()
+    elif selected_relation == "Relasi":
+        scatter_plot_2()
+    elif selected_relation == "Perbandingan":
+        bar_chart_2()
+    elif selected_relation == "Komposisi":
+        pie_chart()
+    else:
+        selected_columns = None
 
-#     # Show the plot in Streamlit
-#     st.pyplot(fig)
+    return selected_relation, selected_columns
 
 def display_data():
     relation_options = ["Datasets", "Cluster"]
@@ -344,8 +424,7 @@ def main():
 
     if selected_section == "Statistik":
         display_introduction()
-        # line_chart()
-        # book_summary()
+        display_statistik()
         st.write("You are viewing the Introduction section.")
     elif selected_section == "Data":
         selected_relation, selected_columns = display_data()
