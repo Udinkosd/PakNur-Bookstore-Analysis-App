@@ -557,7 +557,7 @@ def main():
     if selected_section == "Statistik":
         display_introduction()
         display_statistik()
-        st.write("You are viewing the Introduction section.")
+        st.write("You are viewing the Statistics section.")
     elif selected_section == "Data":
         selected_relation, selected_columns = display_data()
         relation_section(selected_relation, selected_columns)
