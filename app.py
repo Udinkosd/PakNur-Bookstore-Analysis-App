@@ -512,7 +512,7 @@ def display_data():
     return selected_relation, selected_columns
         
 def main():
-    st.sidebar.image("F:\Kuliah\PakNur Bookstore\CjAIAxx.png", use_column_width=True) 
+    st.sidebar.image("https://raw.githubusercontent.com/Udinkosd/PakNur-Bookstore-Analysis-App/main/CjAIAxx.png", use_column_width=True) 
     
     st.sidebar.title("Selamat Datang!")
 
